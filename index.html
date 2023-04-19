@@ -24,7 +24,7 @@
 		<div class="container-fluid" ng-app="userManagement" ng-controller="userController">
 			<h2 class="text-center my-5">Learning AngularJS</h2>
 
-			<form action="">
+			<form ng-submit="handleSubmit()">
 				<div class="row">
 					<div class="col-lg-8">
 						<div class="card">
@@ -56,13 +56,18 @@
 												<td>
 													<button
 														type="button"
-														class="btn btn-default"
-														ng-click="getUserDetails(user.id)"
+														class="btn btn-primary"
+														ng-click="handleEditUser(user)"
 													>
-														<i class="fa fa-search"></i>
+														Edit
 													</button>
-													<button type="button" class="btn btn-primary">Edit</button>
-													<button type="button" class="btn btn-danger">Delete</button>
+													<button
+														type="button"
+														class="btn btn-danger"
+														ng-click="deleteUser(user.id)"
+													>
+														Delete
+													</button>
 												</td>
 											</tr>
 										</tbody>
@@ -85,14 +90,10 @@
 					<div class="col-lg-4">
 						<div class="card">
 							<div class="card-header bg-primary">
-								<h5 class="card-title text-white">Add User</h5>
+								<h5 class="card-title text-white" ng-show="isAdd">Add User</h5>
+								<h5 class="card-title text-white" ng-hide="isAdd">Edit User</h5>
 							</div>
 							<div class="card-body">
-								<div>
-									<img class="" src="" alt="" style="width: 100px; height: 100px" />
-									<input type="file" name="image" ng-model="image" id="image" />
-								</div>
-
 								<div class="mb-3">
 									<label for="firstName" class="form-label">First Name</label>
 									<input type="text" ng-model="firstName" class="form-control" id="firstName" />
@@ -109,6 +110,7 @@
 										ng-model="gender"
 										class="form-check-input me-4"
 										id="male"
+										value="male"
 									/>
 									<label for="female" class="form-check-label">Female</label>
 									<input
@@ -117,51 +119,31 @@
 										ng-model="gender"
 										class="form-check-input"
 										id="female"
+										value="female"
 									/>
 								</div>
 								<div class="mb-3">
-									<label for="email" ng-model="email" class="form-label">Email</label>
-									<input type="email" class="form-control" id="email" />
+									<label for="email" class="form-label">Email</label>
+									<input type="email" ng-model="email" class="form-control" id="email" />
 								</div>
 								<div class="mb-3">
-									<label for="phone" ng-model="phone" class="form-label">Phone</label>
-									<input type="text" class="form-control" id="phone" />
+									<label for="phone" class="form-label">Phone</label>
+									<input type="text" ng-model="phone" class="form-control" id="phone" />
 								</div>
 								<div class="mb-3">
-									<label for="address" ng-model="address" class="form-label">Address</label>
-									<input type="text" class="form-control" id="address" />
+									<label for="age" class="form-label">Age</label>
+									<input type="number" ng-model="age" class="form-control" id="age" />
 								</div>
 							</div>
 
-							<p>{{lastName}}</p>
-							<p>{{firstName}}</p>
-							<p>{{email}}</p>
 							<div class="card-footer">
-								<button type="submit" class="btn btn-primary">Add</button>
+								<button type="submit" ng-show="isAdd" class="btn btn-primary">Add</button>
+								<button type="submit" ng-hide="isAdd" class="btn btn-primary">Save</button>
 							</div>
 						</div>
 					</div>
 				</div>
 			</form>
-
-			<!-- Modal user detail -->
-			<div class="modal" ng-show="showModal">
-				<div class="modal-dialog">
-					<div class="modal-content">
-						<div class="modal-header">
-							<h5 class="modal-title">Modal title</h5>
-							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-						</div>
-						<div class="modal-body">
-							<p>Modal body text goes here.</p>
-						</div>
-						<div class="modal-footer">
-							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-							<button type="button" class="btn btn-primary">Save changes</button>
-						</div>
-					</div>
-				</div>
-			</div>
 		</div>
 
 		<!-- script -->

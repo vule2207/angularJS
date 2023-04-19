@@ -1,15 +1,16 @@
 var userManagement = angular.module("userManagement", []);
 userManagement.controller("userController", function ($scope, $http) {
 	let limit = 10;
-
-	console.log("image: ", $scope.image);
-	console.log("name: ", $scope.firstName);
-	console.log("image: ", $scope.showModal);
-
-	// handle action modal
-	$scope.showModal = false;
-	$scope.closeModal = function () {
-		$scope.showModal = false;
+	// handle CRUD
+	$scope.isAdd = true;
+	$scope.handleEditUser = function (user) {
+		$scope.isAdd = false;
+		$scope.firstName = user.firstName;
+		$scope.lastName = user.lastName;
+		$scope.gender = user.gender;
+		$scope.email = user.email;
+		$scope.phone = user.phone;
+		$scope.age = user.age;
 	};
 
 	// CRUD users data
@@ -34,6 +35,16 @@ userManagement.controller("userController", function ($scope, $http) {
 			.catch(function (error) {
 				console.log(error);
 			});
+	};
+
+	$scope.handleSubmit = function () {
+		alert("hello world");
+	};
+	$scope.deleteUser = function (id) {
+		$http
+			.delete(`https://dummyjson.com/users/${id}`)
+			.then((res) => alert("Delete User Successfull!"))
+			.catch((err) => alert("Delete User Failed!"));
 	};
 
 	$scope.getUsers();
