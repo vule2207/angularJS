@@ -1,9 +1,18 @@
-var userManagement = angular.module("userManagement", []);
-userManagement.controller("userController", function ($scope, $http) {
+angular
+	.module("userManagement.controllers", [])
+	.controller("userController", ["$scope", "userServices", userController]);
+
+function userController($scope, userServices) {
 	let limit = 10;
 	$scope.isAdd = true;
 	$scope.formData = {};
 	$scope.curPage = 1;
+
+	$scope.sortBy = "name-asc";
+
+	$scope.handleChangeSort = function () {
+		console.log("sortBy: ", $scope.sortBy);
+	};
 
 	// pagination
 	$scope.handlePageChange = function (page) {
@@ -17,8 +26,9 @@ userManagement.controller("userController", function ($scope, $http) {
 		}
 		$scope.curPage = page;
 		const skip = ($scope.curPage - 1) * limit;
-		$scope.getUsers(limit, skip);
+		$scope.getUserList(limit, skip);
 	};
+
 	// handle CRUD
 	$scope.handleEditUser = function (user) {
 		$scope.isAdd = false;
@@ -32,16 +42,9 @@ userManagement.controller("userController", function ($scope, $http) {
 	};
 
 	// CRUD users data
-	$scope.getUsers = function (limit = 10, skip = 0) {
-		const config = {
-			method: "GET",
-			url: "https://dummyjson.com/users",
-			params: {
-				limit: limit,
-				skip: skip,
-			},
-		};
-		$http(config) //${limit !== 0 ? `?limit=${limit}` : ""}
+	$scope.getUserList = function (limit = 10, skip = 0) {
+		return userServices
+			.getUsers(limit, skip)
 			.then(function (response) {
 				$scope.users = response.data.users;
 				$scope.total = response.data.total;
@@ -53,8 +56,8 @@ userManagement.controller("userController", function ($scope, $http) {
 	};
 
 	$scope.getUserDetails = function (id) {
-		$http
-			.get(`https://dummyjson.com/users/${id}`)
+		return userServices
+			.getUserDetails()
 			.then(function (response) {
 				$scope.userDetails = response.data;
 				$scope.showModal = true;
@@ -65,19 +68,18 @@ userManagement.controller("userController", function ($scope, $http) {
 	};
 
 	$scope.handleSubmit = function (form) {
-		// console.log("form:", form);
 		$scope.userData = angular.copy($scope.formData);
 		if ($scope.isAdd) {
-			$http
-				.post(`https://dummyjson.com/users/add`, $scope.userData)
+			userServices
+				.addUser($scope.userData)
 				.then((res) => {
 					$scope.formData = {};
 					alert("Add User Successfull!");
 				})
 				.catch((err) => alert("Add User Failed!"));
 		} else {
-			$http
-				.put(`https://dummyjson.com/users/${$scope.userData.id}`, $scope.userData)
+			userServices
+				.updateUser($scope.userData.id, $scope.userData)
 				.then((res) => {
 					$scope.formData = {};
 					$scope.isAdd = true;
@@ -88,8 +90,8 @@ userManagement.controller("userController", function ($scope, $http) {
 	};
 
 	$scope.deleteUser = function (id) {
-		$http
-			.delete(`https://dummyjson.com/users/${id}`)
+		userServices
+			.deleteUser(id)
 			.then((res) => alert("Delete User Successfull!"))
 			.catch((err) => alert("Delete User Failed!"));
 	};
@@ -100,5 +102,5 @@ userManagement.controller("userController", function ($scope, $http) {
 		$scope.isAdd = true;
 	};
 
-	$scope.getUsers();
-});
+	$scope.getUserList();
+}
