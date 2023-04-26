@@ -44,37 +44,3 @@ body {
 a:hover {
 	cursor: pointer;
 }
-#pagination {
-	display: flex;
-	height: 100vh;
-	align-items: center;
-	justify-content: center;
-	flex-direction: column;
-}
-#pagination ul {
-	list-style: none;
-	padding: 0;
-	margin: 0;
-	display: flex;
-}
-#pagination ul li {
-	color: #fff;
-	display: flex;
-}
-#pagination ul li a {
-	background-color: #444b6e;
-	padding: 5px 10px;
-	border: 2px solid gray;
-	border-right: 0;
-}
-
-#pagination ul li.active a {
-	background-color: blue;
-}
-#pagination ul li:first-child a {
-	border-radius: 4px 0 0 4px;
-}
-#pagination ul li:last-child a {
-	border-radius: 0 4px 4px 0;
-	border-right: 2px solid gray;
-}

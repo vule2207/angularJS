@@ -1,13 +1,13 @@
 angular
 	.module("userManagement.controllers", [])
-	.controller("userController", ["$scope", "userServices", userController]);
+	.controller("userController", ["$scope", "userServices", userController])
+	.controller("tabController", ["$scope", "$location", "$route", tabController]);
 
 function userController($scope, userServices) {
 	let limit = 10;
 	$scope.isAdd = true;
 	$scope.formData = {};
 	$scope.curPage = 1;
-
 	$scope.sortBy = "name-asc";
 
 	$scope.handleChangeSort = function () {
@@ -27,6 +27,10 @@ function userController($scope, userServices) {
 		$scope.curPage = page;
 		const skip = ($scope.curPage - 1) * limit;
 		$scope.getUserList(limit, skip);
+	};
+
+	$scope.isActivePage = function (page) {
+		return page === $scope.curPage;
 	};
 
 	// handle CRUD
@@ -103,4 +107,17 @@ function userController($scope, userServices) {
 	};
 
 	$scope.getUserList();
+}
+
+function tabController($scope, $location) {
+	$scope.routes = [
+		{ path: "/users", label: "Users" },
+		{ path: "/products", label: "Products" },
+	];
+	$scope.isActive = function (route) {
+		return route.path === $location.path();
+	};
+	$scope.setActive = function (route) {
+		$location.path(route.path);
+	};
 }
