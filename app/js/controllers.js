@@ -1,58 +1,104 @@
 angular
 	.module("userManagement.controllers", [])
 	.controller("userController", ["$scope", "userServices", userController])
-	.controller("tabController", ["$scope", "$location", "$route", tabController]);
+	.controller("tabController", ["$scope", "$location", "$route", tabController])
+	.controller('UploadController', function($scope, fileReader) {
+    $scope.imageSrc = "";
+    
+    $scope.$on("fileProgress", function(e, progress) {
+      $scope.progress = progress.loaded / progress.total;
+    });
+  });
 
 function userController($scope, userServices) {
 	let limit = 10;
 	$scope.isAdd = true;
 	$scope.formData = {};
-	$scope.curPage = 1;
-	$scope.sortBy = "name-asc";
+	$scope.pagination = {};
+	$scope.orderBy = "name-asc";
+	$scope.params = {
+		keywork: $scope.searchName,
+		limit,
+		page: $scope.pagination.current_page ? $scope.pagination.current_page : 1,
+		order_by: $scope.orderBy ? $scope.orderBy.split('-')[0] : 'name',
+		sort_by: $scope.orderBy ? $scope.orderBy.split('-')[1] : 'asc',
+	}
 
+	// avatar
+	$scope.handleChangeAvatar = function (files) {
+		console.log("$files:", files)
+		var file = files[0];
+  
+		var reader = new FileReader();
+		
+		reader.onload = function(event) {
+			$scope.previewSrc = event.target.result;
+			$scope.$apply(); 
+		};
+		
+		reader.readAsDataURL(file);
+	}
+ 
+	// order by 
 	$scope.handleChangeSort = function () {
-		console.log("sortBy: ", $scope.sortBy);
+		$scope.params = {
+			...$scope.params,
+			order_by: $scope.orderBy.split('-')[0],
+			sort_by: $scope.orderBy.split('-')[1],
+		}
+		$scope.getUserList($scope.params);
 	};
+
+	// search
+	$scope.handleSearchName = function () {
+		$scope.params = {
+			...$scope.params,
+			keywork: $scope.searchName,
+		}
+		$scope.getUserList($scope.params);
+	}
 
 	// pagination
 	$scope.handlePageChange = function (page) {
 		if (page <= 0) {
-			$scope.curPage = 1;
+			$scope.pagination.current_page = 1;
 			return;
 		}
-		if (page > $scope.totalPages) {
-			$scope.curPage = $scope.totalPages;
+		if (Number(page) > $scope.pagination.total_page) {
+			$scope.pagination.current_page = $scope.pagination.total_page;
 			return;
 		}
-		$scope.curPage = page;
-		const skip = ($scope.curPage - 1) * limit;
-		$scope.getUserList(limit, skip);
+		$scope.pagination.current_page = page;
+		$scope.params = {
+			...$scope.params,
+			page: $scope.pagination.current_page
+		}
+		$scope.getUserList($scope.params);
 	};
 
 	$scope.isActivePage = function (page) {
-		return page === $scope.curPage;
+		return page == $scope.pagination.current_page;
 	};
 
 	// handle CRUD
 	$scope.handleEditUser = function (user) {
 		$scope.isAdd = false;
 		$scope.formData.id = user.id;
-		$scope.formData.firstName = user.firstName;
-		$scope.formData.lastName = user.lastName;
+		$scope.formData.avatar = user.avatar;
+		$scope.formData.name = user.name;
 		$scope.formData.gender = user.gender;
 		$scope.formData.email = user.email;
-		$scope.formData.phone = user.phone;
-		$scope.formData.age = user.age;
+		$scope.formData.phone = Number(user.phone);
+		$scope.formData.age = Number(user.age);
 	};
 
 	// CRUD users data
-	$scope.getUserList = function (limit = 10, skip = 0) {
+	$scope.getUserList = function (params) {
 		return userServices
-			.getUsers(limit, skip)
+			.getUsers(params)
 			.then(function (response) {
-				$scope.users = response.data.users;
-				$scope.total = response.data.total;
-				$scope.totalPages = Math.ceil($scope.total / limit);
+				$scope.users = response.data.rows;
+				$scope.pagination = response.data.attr.pagination;
 			})
 			.catch(function (error) {
 				console.log(error);
@@ -72,22 +118,24 @@ function userController($scope, userServices) {
 	};
 
 	$scope.handleSubmit = function (form) {
-		$scope.userData = angular.copy($scope.formData);
+		const data = JSON.stringify(angular.copy($scope.formData));
 		if ($scope.isAdd) {
 			userServices
-				.addUser($scope.userData)
+				.addUser(data)
 				.then((res) => {
 					$scope.formData = {};
 					alert("Add User Successfull!");
+					$scope.getUserList();
 				})
 				.catch((err) => alert("Add User Failed!"));
 		} else {
 			userServices
-				.updateUser($scope.userData.id, $scope.userData)
+				.updateUser($scope.formData.id, data)
 				.then((res) => {
 					$scope.formData = {};
 					$scope.isAdd = true;
 					alert("Update User Successfull!");
+					$scope.getUserList();
 				})
 				.catch((err) => alert("Update User Failed!"));
 		}
@@ -96,7 +144,10 @@ function userController($scope, userServices) {
 	$scope.deleteUser = function (id) {
 		userServices
 			.deleteUser(id)
-			.then((res) => alert("Delete User Successfull!"))
+			.then((res) => {
+				alert("Delete User Successfull!")
+				$scope.getUserList();
+			})
 			.catch((err) => alert("Delete User Failed!"));
 	};
 
@@ -106,7 +157,7 @@ function userController($scope, userServices) {
 		$scope.isAdd = true;
 	};
 
-	$scope.getUserList();
+	$scope.getUserList($scope.params);
 }
 
 function tabController($scope, $location) {

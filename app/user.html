@@ -13,11 +13,13 @@
 								ng-model="searchName"
 								class="w-50 form-control"
 								placeholder="Type search name..."
+								ng-change="handleSearchName()"
+								ng-model-options="{ debounce: 500 }"
 							/>
 						</div>
 
 						<div class="col-lg-3 offset-lg-3">
-							<select class="form-select" ng-model="sortBy" ng-change="handleChangeSort()">
+							<select class="form-select" ng-model="orderBy" ng-change="handleChangeSort()">
 								<option value="name-asc">Name ASC</option>
 								<option value="name-desc">Name DESC</option>
 								<option value="age-asc">Age ASC</option>
@@ -30,6 +32,7 @@
 							<thead>
 								<tr>
 									<th>ID</th>
+									<th>Avatar</th>
 									<th>Name</th>
 									<th>Gender</th>
 									<th>Age</th>
@@ -41,15 +44,18 @@
 							<tbody>
 								<tr
 									class=""
-									ng-repeat="user in users | filterSortBy:sortBy | searchNameFilter:searchName"
+									ng-repeat="user in users" 
 								>
-									<td class="">{{user.id}}</td>
-									<td class="">{{user.firstName}}</td>
-									<td class="">{{user.gender}}</td>
-									<td class="">{{user.age}}</td>
-									<td class="">{{user.phone}}</td>
-									<td class="">{{user.email}}</td>
-									<td>
+									<td class="align-middle">{{user.id}}</td>
+									<td class="align-middle">
+										<img style="height: 40px; width: 40px;" ng-src="{{user.avatar}}" alt="">
+									</td>
+									<td class="align-middle">{{user.name}}</td>
+									<td class="align-middle">{{user.gender}}</td>
+									<td class="align-middle">{{user.age}}</td>
+									<td class="align-middle">{{user.phone}}</td>
+									<td class="align-middle">{{user.email}}</td>
+									<td class="align-middle">
 										<button type="button" class="btn btn-primary" ng-click="handleEditUser(user)">
 											Edit
 										</button>
@@ -62,33 +68,34 @@
 						</table>
 					</div>
 				</div>
+				
 				<div class="d-flex justify-content-end" style="margin-right: 20px">
 					<nav aria-label="Page navigation example">
 						<ul class="pagination">
 							<li class="page-item">
-								<a class="page-link" ng-click="handlePageChange(curPage - 1)">Previous</a>
+								<a class="page-link" ng-click="handlePageChange(pagination.current_page - 1)">Previous</a>
 							</li>
 							<li class="page-item" ng-class="{active: isActivePage(1)}">
 								<a class="page-link" ng-click="handlePageChange(1)">1</a>
 							</li>
-							<li class="page-item">
+							<li class="page-item" ng-show="pagination.total_page > 2">
 								<a class="page-link">...</a>
 							</li>
 							<li
 								class="page-item"
-								ng-class="{active: isActivePage(curPage)}"
-								ng-show="curPage != 1 && curPage != totalPages"
+								ng-class="{active: isActivePage(pagination.current_page)}"
+								ng-show="pagination.current_page != 1 && pagination.current_page != pagination.total_page"
 							>
-								<a class="page-link">{{curPage}}</a>
+								<a class="page-link">{{pagination.current_page}}</a>
 							</li>
-							<li class="page-item">
+							<li class="page-item" ng-show="pagination.total_page > 2">
 								<a class="page-link">...</a>
 							</li>
-							<li class="page-item" ng-class="{active: isActivePage(totalPages)}">
-								<a class="page-link" ng-click="handlePageChange(totalPages)">{{totalPages}}</a>
+							<li class="page-item" ng-class="{active: isActivePage(pagination.total_page)}" ng-show="pagination.total_page > 1">
+								<a class="page-link" ng-click="handlePageChange(pagination.total_page)">{{pagination.total_page}}</a>
 							</li>
 							<li class="page-item">
-								<a class="page-link" ng-click="handlePageChange(curPage + 1)">Next</a>
+								<a class="page-link" ng-click="handlePageChange(pagination.current_page + 1)">Next</a>
 							</li>
 						</ul>
 					</nav>
@@ -101,31 +108,26 @@
 					<h5 class="card-title text-white" ng-show="isAdd">Add User</h5>
 					<h5 class="card-title text-white" ng-hide="isAdd">Edit User</h5>
 				</div>
-				<form name="userForm" ng-submit="handleSubmit(userForm)" novalidate>
+				<form name="userForm" ng-submit="handleSubmit(userForm)" novalidate enctype="multipart/form-data">
 					<div class="card-body">
+						<div class="mb-3 d-flex flex-column align-items-center">
+							<img class="mb-3" style="height: 150px; width: 150px;" ng-src="{{formData.avatar}}" alt="">
+							<input
+								type="file"
+								class="form-control w-50"
+								ng-file-select="handleChangeAvatar($files)"
+								ng-model="formData.avatar"
+							/>
+						</div>
 						<div class="mb-3">
-							<label for="firstName" class="form-label">First Name</label>
+							<label for="firstName" class="form-label">Name</label>
 							<input
 								type="text"
-								ng-model="formData.firstName"
+								ng-model="formData.name"
 								class="form-control"
 								id="firstName"
 								ng-model-options="{ debounce: 250 }"
 								required=""
-							/>
-							<div ng-show="!userForm.firstName.$error.required" class="valid-feedback">Looks good!</div>
-							<div ng-hide="userForm.firstName.$error.required" class="invalid-feedback">
-								First name is required!
-							</div>
-						</div>
-						<div class="mb-3">
-							<label for="lastName" class="form-label">Last Name</label>
-							<input
-								type="text"
-								ng-model="formData.lastName"
-								class="form-control"
-								id="lastName"
-								ng-model-options="{ debounce: 250 }"
 							/>
 						</div>
 						<div class="mb-3">
@@ -161,7 +163,7 @@
 						<div class="mb-3">
 							<label for="phone" class="form-label">Phone</label>
 							<input
-								type="text"
+								type="number"
 								ng-model="formData.phone"
 								class="form-control"
 								id="phone"

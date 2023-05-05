@@ -14,7 +14,7 @@ function searchNameFilter() {
 		searchString = searchString.toLowerCase();
 
 		angular.forEach(arr, function (item) {
-			if (item.firstName.toLowerCase().indexOf(searchString) !== -1) {
+			if (item.name.toLowerCase().indexOf(searchString) !== -1) {
 				result.push(item);
 			}
 		});
@@ -28,12 +28,12 @@ function filterSortBy() {
 		switch (field) {
 			case "name-asc":
 				return arr?.sort(function (a, b) {
-					return a.firstName.localeCompare(b.firstName);
+					return a.name.localeCompare(b.name);
 				});
 			case "name-desc":
 				return arr
 					?.sort(function (a, b) {
-						return a.firstName.localeCompare(b.firstName);
+						return a.name.localeCompare(b.name);
 					})
 					.reverse();
 			case "age-asc":
