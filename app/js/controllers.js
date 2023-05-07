@@ -25,19 +25,19 @@ function userController($scope, userServices) {
 	}
 
 	// avatar
-	$scope.handleChangeAvatar = function (files) {
-		console.log("$files:", files)
-		var file = files[0];
+	// $scope.handleChangeAvatar = function (files) {
+	// 	console.log("$files:", files)
+	// 	var file = files[0];
   
-		var reader = new FileReader();
+	// 	var reader = new FileReader();
 		
-		reader.onload = function(event) {
-			$scope.previewSrc = event.target.result;
-			$scope.$apply(); 
-		};
+	// 	reader.onload = function(event) {
+	// 		$scope.previewSrc = event.target.result;
+	// 		$scope.$apply(); 
+	// 	};
 		
-		reader.readAsDataURL(file);
-	}
+	// 	reader.readAsDataURL(file);
+	// }
  
 	// order by 
 	$scope.handleChangeSort = function () {
@@ -118,22 +118,47 @@ function userController($scope, userServices) {
 	};
 
 	$scope.handleSubmit = function (form) {
-		const data = JSON.stringify(angular.copy($scope.formData));
+		
+		const fd = new FormData();
+		for(let key in $scope.formData) {
+			fd.append(key, $scope.formData[key]);
+		}
+		const fileInputElement = document.getElementById('avatar');
+		const previewAvatarElement = document.getElementById('previewAvatar');
+		
+		if(fileInputElement.files[0]) {
+			fd.delete('avatar');
+			fd.append('avatar', fileInputElement.files[0])
+		}
+		// for (var pair of fd.entries()) {
+		// 	console.log(pair[0]+ ': ' + pair[1]); 
+		// }
+
 		if ($scope.isAdd) {
 			userServices
-				.addUser(data)
+				.addUser(fd)
 				.then((res) => {
 					$scope.formData = {};
+					fileInputElement.value = '';
+					previewAvatarElement.src = '';
 					alert("Add User Successfull!");
 					$scope.getUserList();
 				})
 				.catch((err) => alert("Add User Failed!"));
 		} else {
+			if(fileInputElement.files[0]) {
+				userServices.updateAvatar($scope.formData.id, fd).then((res) => {console.log("update avatar")})
+			}
+			const dataForm = angular.copy($scope.formData)
+			delete dataForm.avatar
+			const data = JSON.stringify(dataForm);
 			userServices
 				.updateUser($scope.formData.id, data)
 				.then((res) => {
 					$scope.formData = {};
 					$scope.isAdd = true;
+					fileInputElement.value = '';
+					previewAvatarElement.src = '';
 					alert("Update User Successfull!");
 					$scope.getUserList();
 				})
@@ -152,7 +177,6 @@ function userController($scope, userServices) {
 	};
 
 	$scope.resetForm = function () {
-		console.log("userForm: ", $scope.userForm);
 		$scope.formData = {};
 		$scope.isAdd = true;
 	};

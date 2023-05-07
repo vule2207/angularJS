@@ -50,7 +50,7 @@ angular.module("userManagement.services", [])
 
 function userServices($http) {
 	let userApiServices = {};
-	const baseURL = "http://localhost/codeigniter3/index.php/api/user";
+	const baseURL = "http://localhost:8080/codeigniter3/index.php/api/user";
 
 	// CRUD users data
 	userApiServices.getUsers = function (params) {
@@ -66,7 +66,16 @@ function userServices($http) {
 		return $http.get(`${baseURL}/${id}`);
 	};
 	userApiServices.addUser = function (data) {
-		return $http.post(`${baseURL}`, data);
+		const config = {
+			method: "POST",
+			url: baseURL,
+			headers: {
+				'Content-Type': undefined
+			},
+			data: data,
+			transformRequest: angular.identity
+		};
+		return $http(config);
 	};
 
 	userApiServices.updateUser = function (id, data) {
@@ -76,6 +85,19 @@ function userServices($http) {
 	userApiServices.deleteUser = function (id) {
 		return $http.delete(`${baseURL}/${id}`);
 	};
+
+	userApiServices.updateAvatar = function (id, data) {
+		const config = {
+			method: "POST",
+			url: `http://localhost:8080/codeigniter3/index.php/upload/${id}`,
+			headers: {
+				'Content-Type': undefined
+			},
+			data: data,
+			transformRequest: angular.identity
+		};
+		return $http(config);
+	}
 
 	return userApiServices;
 }
