@@ -1,48 +1,48 @@
 angular.module("userManagement.services", [])
 	.factory("userServices", ["$http", userServices])
-	.factory("fileReader", function($q, $log) {
-		var onLoad = function(reader, deferred, scope) {
-			return function() {
-				scope.$apply(function() {
+	.factory("fileReader", function ($q, $log) {
+		var onLoad = function (reader, deferred, scope) {
+			return function () {
+				scope.$apply(function () {
 					deferred.resolve(reader.result);
 				});
 			};
 		};
-	
-		var onError = function(reader, deferred, scope) {
-			return function() {
-				scope.$apply(function() {
+
+		var onError = function (reader, deferred, scope) {
+			return function () {
+				scope.$apply(function () {
 					deferred.reject(reader.result);
 				});
 			};
 		};
-	
-		var onProgress = function(reader, scope) {
-			return function(event) {
+
+		var onProgress = function (reader, scope) {
+			return function (event) {
 				scope.$broadcast("fileProgress", {
 					total: event.total,
 					loaded: event.loaded
 				});
 			};
 		};
-	
-		var getReader = function(deferred, scope) {
+
+		var getReader = function (deferred, scope) {
 			var reader = new FileReader();
 			reader.onload = onLoad(reader, deferred, scope);
 			reader.onerror = onError(reader, deferred, scope);
 			reader.onprogress = onProgress(reader, scope);
 			return reader;
 		};
-	
-		var readAsDataURL = function(file, scope) {
+
+		var readAsDataURL = function (file, scope) {
 			var deferred = $q.defer();
-	
+
 			var reader = getReader(deferred, scope);
 			reader.readAsDataURL(file);
-	
+
 			return deferred.promise;
 		};
-	
+
 		return {
 			readAsDataUrl: readAsDataURL
 		};
@@ -50,7 +50,7 @@ angular.module("userManagement.services", [])
 
 function userServices($http) {
 	let userApiServices = {};
-	const baseURL = "http://localhost/codeigniter3/index.php/api/user";
+	const baseURL = "http://localhost:8080/codeigniter3/index.php/api/user";
 
 	// CRUD users data
 	userApiServices.getUsers = function (params) {
@@ -89,11 +89,37 @@ function userServices($http) {
 	userApiServices.updateAvatar = function (id, data) {
 		const config = {
 			method: "POST",
-			url: `http://localhost/codeigniter3/index.php/upload/${id}`,
+			url: `http://localhost:8080/codeigniter3/index.php/upload/${id}`,
 			headers: {
 				'Content-Type': undefined
 			},
 			data: data,
+			transformRequest: angular.identity
+		};
+		return $http(config);
+	}
+
+	userApiServices.registerUser = function (dataRegister) {
+		const config = {
+			method: "POST",
+			url: `http://localhost:8080/codeigniter3/index.php/api/user/register`,
+			data: dataRegister,
+			headers: {
+				'Content-Type': undefined
+			},
+			transformRequest: angular.identity
+		};
+		return $http(config);
+	}
+
+	userApiServices.login = function (dataLogin) {
+		const config = {
+			method: "POST",
+			url: `http://localhost:8080/codeigniter3/index.php/api/user/login`,
+			data: dataLogin,
+			headers: {
+				'Content-Type': undefined
+			},
 			transformRequest: angular.identity
 		};
 		return $http(config);

@@ -1,6 +1,6 @@
 <div class="mt-5" style="width: 30%;; margin: 0 auto;">
 
-    <form>
+    <form name="form_login" ng-submit="handleLogin(form_login)">
       <div class="text-center mb-3">
         <p>Sign in with:</p>
         <button type="button" class="btn btn-link btn-floating mx-1">
@@ -25,13 +25,13 @@
       <!-- Email input -->
       <div class="form-outline mb-4">
         <label class="form-label" for="loginName">Email or username</label>
-        <input type="email" id="loginName" class="form-control" />
+        <input type="text" id="loginName" class="form-control" ng-model="formLogin.username"/>
       </div>
 
       <!-- Password input -->
       <div class="form-outline mb-4">
         <label class="form-label" for="loginPassword">Password</label>
-        <input type="password" id="loginPassword" class="form-control" />
+        <input type="password" id="loginPassword" class="form-control" ng-model="formLogin.password"/>
       </div>
 
       <!-- 2 column grid layout -->

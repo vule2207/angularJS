@@ -3,15 +3,50 @@ angular
 	.controller("userController", ["$scope", "userServices", userController])
 	.controller("tabController", ["$scope", "$location", "$route", tabController])
 	.controller('UploadController', ["$scope", 'fileReader', uploadController])
-	.controller('authController', ["$scope", '$location', authController]);
+	.controller('authController', function ($scope, $location, userServices) {
+		$scope.formRegister = {};
+		$scope.formLogin = {};
+
+		$scope.handleRegister = function (form) {
+			const data = angular.copy($scope.formRegister);
+			if (data.password !== data.password) {
+				alert("Repeat password wrong!");
+				return
+			}
+			const fd = new FormData();
+			for (let key in data) {
+				fd.append(key, data[key]);
+			}
+			userServices.registerUser(fd).then((res) => {
+				// $scope.user_token = res.data.access_token
+				$location.path('/login')
+			}).catch(err => {
+				alert("Register user failed!");
+			})
+		}
+
+		$scope.handleLogin = function (form) {
+			const data = angular.copy($scope.formLogin);
+			const fd = new FormData();
+			for (let key in data) {
+				fd.append(key, data[key]);
+			}
+			userServices.login(fd).then((res) => {
+				$scope.user_token = res.data.access_token
+				$location.path('/user')
+			}).catch(err => {
+				alert("Login failed!");
+			})
+		}
+	});
 
 
 function uploadController($scope, fileReader) {
 	$scope.imageSrc = "";
-    
-    $scope.$on("fileProgress", function(e, progress) {
-      $scope.progress = progress.loaded / progress.total;
-    });
+
+	$scope.$on("fileProgress", function (e, progress) {
+		$scope.progress = progress.loaded / progress.total;
+	});
 }
 
 function userController($scope, userServices) {
@@ -27,7 +62,7 @@ function userController($scope, userServices) {
 		order_by: $scope.orderBy ? $scope.orderBy.split('-')[0] : 'name',
 		sort_by: $scope.orderBy ? $scope.orderBy.split('-')[1] : 'asc',
 	}
- 
+
 	// order by 
 	$scope.handleChangeSort = function () {
 		$scope.params = {
@@ -107,15 +142,15 @@ function userController($scope, userServices) {
 	};
 
 	$scope.handleSubmit = function (form) {
-		
+
 		const fd = new FormData();
-		for(let key in $scope.formData) {
+		for (let key in $scope.formData) {
 			fd.append(key, $scope.formData[key]);
 		}
 		const fileInputElement = document.getElementById('avatar');
 		const previewAvatarElement = document.getElementById('previewAvatar');
-		
-		if(fileInputElement.files[0]) {
+
+		if (fileInputElement.files[0]) {
 			fd.delete('avatar');
 			fd.append('avatar', fileInputElement.files[0])
 		}
@@ -135,8 +170,8 @@ function userController($scope, userServices) {
 				})
 				.catch((err) => alert("Add User Failed!"));
 		} else {
-			if(fileInputElement.files[0]) {
-				userServices.updateAvatar($scope.formData.id, fd).then((res) => {console.log("update avatar")})
+			if (fileInputElement.files[0]) {
+				userServices.updateAvatar($scope.formData.id, fd).then((res) => { console.log("update avatar") })
 			}
 			const dataForm = angular.copy($scope.formData)
 			delete dataForm.avatar
@@ -186,6 +221,3 @@ function tabController($scope, $location) {
 	};
 }
 
-function authController($scope, $location) {
-	
-}
