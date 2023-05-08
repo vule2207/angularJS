@@ -50,7 +50,7 @@ angular.module("userManagement.services", [])
 
 function userServices($http) {
 	let userApiServices = {};
-	const baseURL = "http://localhost:8080/codeigniter3/index.php/api/user";
+	const baseURL = "http://localhost/codeigniter3/index.php/api/user";
 
 	// CRUD users data
 	userApiServices.getUsers = function (params) {
@@ -89,7 +89,7 @@ function userServices($http) {
 	userApiServices.updateAvatar = function (id, data) {
 		const config = {
 			method: "POST",
-			url: `http://localhost:8080/codeigniter3/index.php/upload/${id}`,
+			url: `http://localhost/codeigniter3/index.php/upload/${id}`,
 			headers: {
 				'Content-Type': undefined
 			},

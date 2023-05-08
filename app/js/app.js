@@ -19,6 +19,14 @@ angular
 			.when("/products", {
 				templateUrl: "product.html",
 			})
+			.when("/login", {
+				templateUrl: "login.html",
+				controller: "authController",
+			})
+			.when("/register", {
+				templateUrl: "register.html",
+				controller: "authController",
+			})
 			.otherwise({
 				redirectTo: "/",
 			});

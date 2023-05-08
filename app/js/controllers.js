@@ -2,13 +2,17 @@ angular
 	.module("userManagement.controllers", [])
 	.controller("userController", ["$scope", "userServices", userController])
 	.controller("tabController", ["$scope", "$location", "$route", tabController])
-	.controller('UploadController', function($scope, fileReader) {
-    $scope.imageSrc = "";
+	.controller('UploadController', ["$scope", 'fileReader', uploadController])
+	.controller('authController', ["$scope", '$location', authController]);
+
+
+function uploadController($scope, fileReader) {
+	$scope.imageSrc = "";
     
     $scope.$on("fileProgress", function(e, progress) {
       $scope.progress = progress.loaded / progress.total;
     });
-  });
+}
 
 function userController($scope, userServices) {
 	let limit = 10;
@@ -23,21 +27,6 @@ function userController($scope, userServices) {
 		order_by: $scope.orderBy ? $scope.orderBy.split('-')[0] : 'name',
 		sort_by: $scope.orderBy ? $scope.orderBy.split('-')[1] : 'asc',
 	}
-
-	// avatar
-	// $scope.handleChangeAvatar = function (files) {
-	// 	console.log("$files:", files)
-	// 	var file = files[0];
-  
-	// 	var reader = new FileReader();
-		
-	// 	reader.onload = function(event) {
-	// 		$scope.previewSrc = event.target.result;
-	// 		$scope.$apply(); 
-	// 	};
-		
-	// 	reader.readAsDataURL(file);
-	// }
  
 	// order by 
 	$scope.handleChangeSort = function () {
@@ -195,4 +184,8 @@ function tabController($scope, $location) {
 	$scope.setActive = function (route) {
 		$location.path(route.path);
 	};
+}
+
+function authController($scope, $location) {
+	
 }
