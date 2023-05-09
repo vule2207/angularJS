@@ -31,9 +31,13 @@
 								<a style="text-decoration: none; color: #000;" class="nav-item fs-5" href="#!{{route.path}}" ng-click="setActive(route)">{{route.label}}</a>
 							</div>
 						</div>
-						<div class="nav-item fs-5">
+						<div class="nav-item fs-5" ng-hide="user_info.access_token">
 							<a href="#!login">Login</a> / 
 							<a href="#!register">Register</a>
+						</div>
+						<div class="nav-item fs-5" ng-show="user_info.access_token">
+							<span>{{user_info.name}}</span> / 
+							<a href="#!login" ng-click="handleLogout()">Logout</a>
 						</div>
 					</div>
 				</div>

@@ -1,5 +1,5 @@
 angular.module("userManagement.services", [])
-	.factory("userServices", ["$http", userServices])
+	.factory("userServices", ["$http", '$rootScope', userServices])
 	.factory("fileReader", function ($q, $log) {
 		var onLoad = function (reader, deferred, scope) {
 			return function () {
@@ -48,29 +48,43 @@ angular.module("userManagement.services", [])
 		};
 	});
 
-function userServices($http) {
+function userServices($http, $rootScope) {
 	let userApiServices = {};
-	const baseURL = "http://localhost:8080/codeigniter3/index.php/api/user";
+	const baseURL = "http://localhost/codeigniter3/index.php/api/user";
+
 
 	// CRUD users data
-	userApiServices.getUsers = function (params) {
+	userApiServices.getUsers = function (params = null, headerAuth) {
 		const config = {
 			method: "GET",
 			url: baseURL,
+			headers: {
+				...headerAuth
+			},
 			params
 		};
 		return $http(config);
 	};
 
-	userApiServices.getUserDetails = function (id) {
-		return $http.get(`${baseURL}/${id}`);
+	userApiServices.getUserDetails = function (id, headerAuth) {
+		const config = {
+			method: "GET",
+			url: `${baseURL}/${id}`,
+			headers: {
+				...headerAuth
+			},
+			params
+		};
+		return $http(config);
+		// return $http.get(`${baseURL}/${id}`);
 	};
 	userApiServices.addUser = function (data) {
 		const config = {
 			method: "POST",
 			url: baseURL,
 			headers: {
-				'Content-Type': undefined
+				'Content-Type': undefined,
+				...headerAuth
 			},
 			data: data,
 			transformRequest: angular.identity
@@ -78,20 +92,40 @@ function userServices($http) {
 		return $http(config);
 	};
 
-	userApiServices.updateUser = function (id, data) {
-		return $http.put(`${baseURL}/${id}`, data);
+	userApiServices.updateUser = function (id, data, headerAuth) {
+		const config = {
+			method: "PUT",
+			url: `${baseURL}/${id}`,
+			headers: {
+				'Content-Type': undefined,
+				...headerAuth
+			},
+			data: data,
+			transformRequest: angular.identity
+		};
+		return $http(config);
+		// return $http.put(`${baseURL}/${id}`, data);
 	};
 
-	userApiServices.deleteUser = function (id) {
-		return $http.delete(`${baseURL}/${id}`);
+	userApiServices.deleteUser = function (id, headerAuth) {
+		const config = {
+			method: "DELETE",
+			url: `${baseURL}/${id}`,
+			headers: {
+				...headerAuth
+			},
+		};
+		return $http(config);
+		// return $http.delete(`${baseURL}/${id}`);
 	};
 
-	userApiServices.updateAvatar = function (id, data) {
+	userApiServices.updateAvatar = function (id, data, headerAuth) {
 		const config = {
 			method: "POST",
-			url: `http://localhost:8080/codeigniter3/index.php/upload/${id}`,
+			url: `http://localhost/codeigniter3/index.php/upload/${id}`,
 			headers: {
-				'Content-Type': undefined
+				'Content-Type': undefined,
+				...headerAuth
 			},
 			data: data,
 			transformRequest: angular.identity
@@ -102,10 +136,11 @@ function userServices($http) {
 	userApiServices.registerUser = function (dataRegister) {
 		const config = {
 			method: "POST",
-			url: `http://localhost:8080/codeigniter3/index.php/api/user/register`,
+			url: `http://localhost/codeigniter3/index.php/api/user/register`,
 			data: dataRegister,
 			headers: {
-				'Content-Type': undefined
+				'Content-Type': undefined,
+				...headerAuth
 			},
 			transformRequest: angular.identity
 		};
@@ -115,11 +150,26 @@ function userServices($http) {
 	userApiServices.login = function (dataLogin) {
 		const config = {
 			method: "POST",
-			url: `http://localhost:8080/codeigniter3/index.php/api/user/login`,
+			url: `http://localhost/codeigniter3/index.php/api/user/login`,
 			data: dataLogin,
 			headers: {
-				'Content-Type': undefined
+				'Content-Type': undefined,
 			},
+			transformRequest: angular.identity
+		};
+		return $http(config);
+	}
+
+	userApiServices.logout = function (data) {
+		const config = {
+			method: "POST",
+			url: `http://localhost/codeigniter3/index.php/api/user/logout`,
+			headers: {
+				'Content-Type': undefined,
+			},
+			data: JSON.stringify({
+				session_id: data
+			}),
 			transformRequest: angular.identity
 		};
 		return $http(config);

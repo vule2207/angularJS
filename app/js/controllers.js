@@ -1,9 +1,50 @@
 angular
 	.module("userManagement.controllers", [])
-	.controller("userController", ["$scope", "userServices", userController])
-	.controller("tabController", ["$scope", "$location", "$route", tabController])
-	.controller('UploadController', ["$scope", 'fileReader', uploadController])
-	.controller('authController', function ($scope, $location, userServices) {
+	.controller("userController", ["$scope", "userServices", '$rootScope', userController])
+	.controller("tabController", function ($scope, $location, userServices, $rootScope) {
+		$scope.routes = [
+			{ path: "/users", label: "Users" },
+			{ path: "/products", label: "Products" },
+		];
+		$scope.isActive = function (route) {
+			return route.path === $location.path();
+		};
+		$scope.setActive = function (route) {
+			$location.path(route.path);
+		};
+		$scope.handleLogout = function () {
+			$rootScope.user_info = {};
+			// userServices.logout($rootScope.user_info.session_id).then((res) => {
+			// 	if (res.data.success) {
+			// 		$location.path('/login');
+			// 	} else {
+			// 		alert(res.data.message)
+			// 	}
+			// })
+		};
+	})
+	.controller('UploadController', function ($scope, $location, userServices) {
+		$scope.routes = [
+			{ path: "/users", label: "Users" },
+			{ path: "/products", label: "Products" },
+		];
+		$scope.isActive = function (route) {
+			return route.path === $location.path();
+		};
+		$scope.setActive = function (route) {
+			$location.path(route.path);
+		};
+		$scope.handleLogout = function () {
+			userServices.logout().then((res) => {
+				if (res.data.success) {
+					$location.path('/login');
+				} else {
+					alert(res.data.message)
+				}
+			})
+		};
+	})
+	.controller('authController', function ($scope, $rootScope, $location, userServices) {
 		$scope.formRegister = {};
 		$scope.formLogin = {};
 
@@ -32,8 +73,13 @@ angular
 				fd.append(key, data[key]);
 			}
 			userServices.login(fd).then((res) => {
-				$scope.user_token = res.data.access_token
-				$location.path('/user')
+				if (res.data.success) {
+					$rootScope.user_info = res.data.user_info
+					alert(res.data.message)
+					$location.path('/users')
+				} else {
+					alert(res.data.message)
+				}
 			}).catch(err => {
 				alert("Login failed!");
 			})
@@ -49,7 +95,11 @@ function uploadController($scope, fileReader) {
 	});
 }
 
-function userController($scope, userServices) {
+function userController($scope, userServices, $rootScope) {
+	const headerAuth = {
+		'Authorization': $rootScope?.user_info?.access_token ?? ''
+	}
+
 	let limit = 10;
 	$scope.isAdd = true;
 	$scope.formData = {};
@@ -70,7 +120,7 @@ function userController($scope, userServices) {
 			order_by: $scope.orderBy.split('-')[0],
 			sort_by: $scope.orderBy.split('-')[1],
 		}
-		$scope.getUserList($scope.params);
+		$scope.getUserList($scope.params, headerAuth);
 	};
 
 	// search
@@ -79,7 +129,7 @@ function userController($scope, userServices) {
 			...$scope.params,
 			keywork: $scope.searchName,
 		}
-		$scope.getUserList($scope.params);
+		$scope.getUserList($scope.params, headerAuth);
 	}
 
 	// pagination
@@ -97,7 +147,7 @@ function userController($scope, userServices) {
 			...$scope.params,
 			page: $scope.pagination.current_page
 		}
-		$scope.getUserList($scope.params);
+		$scope.getUserList($scope.params, headerAuth);
 	};
 
 	$scope.isActivePage = function (page) {
@@ -117,12 +167,14 @@ function userController($scope, userServices) {
 	};
 
 	// CRUD users data
-	$scope.getUserList = function (params) {
+	$scope.getUserList = function (params, headerAuth) {
 		return userServices
-			.getUsers(params)
+			.getUsers(params, headerAuth)
 			.then(function (response) {
-				$scope.users = response.data.rows;
-				$scope.pagination = response.data.attr.pagination;
+				if (response.data.success) {
+					$scope.users = response.data.rows;
+					$scope.pagination = response.data.attr.pagination;
+				}
 			})
 			.catch(function (error) {
 				console.log(error);
@@ -160,31 +212,31 @@ function userController($scope, userServices) {
 
 		if ($scope.isAdd) {
 			userServices
-				.addUser(fd)
+				.addUser(fd, headerAuth)
 				.then((res) => {
 					$scope.formData = {};
 					fileInputElement.value = '';
 					previewAvatarElement.src = '';
 					alert("Add User Successfull!");
-					$scope.getUserList();
+					$scope.getUserList($scope.params, headerAuth);
 				})
 				.catch((err) => alert("Add User Failed!"));
 		} else {
 			if (fileInputElement.files[0]) {
-				userServices.updateAvatar($scope.formData.id, fd).then((res) => { console.log("update avatar") })
+				userServices.updateAvatar($scope.formData.id, fd, headerAuth).then((res) => { console.log("update avatar") })
 			}
 			const dataForm = angular.copy($scope.formData)
 			delete dataForm.avatar
 			const data = JSON.stringify(dataForm);
 			userServices
-				.updateUser($scope.formData.id, data)
+				.updateUser($scope.formData.id, data, headerAuth)
 				.then((res) => {
 					$scope.formData = {};
 					$scope.isAdd = true;
 					fileInputElement.value = '';
 					previewAvatarElement.src = '';
 					alert("Update User Successfull!");
-					$scope.getUserList();
+					$scope.getUserList($scope.params, headerAuth);
 				})
 				.catch((err) => alert("Update User Failed!"));
 		}
@@ -192,10 +244,10 @@ function userController($scope, userServices) {
 
 	$scope.deleteUser = function (id) {
 		userServices
-			.deleteUser(id)
+			.deleteUser(id, headerAuth)
 			.then((res) => {
 				alert("Delete User Successfull!")
-				$scope.getUserList();
+				$scope.getUserList($scope.params, headerAuth);
 			})
 			.catch((err) => alert("Delete User Failed!"));
 	};
@@ -205,19 +257,8 @@ function userController($scope, userServices) {
 		$scope.isAdd = true;
 	};
 
-	$scope.getUserList($scope.params);
+	$scope.getUserList($scope.params, headerAuth);
 }
 
-function tabController($scope, $location) {
-	$scope.routes = [
-		{ path: "/users", label: "Users" },
-		{ path: "/products", label: "Products" },
-	];
-	$scope.isActive = function (route) {
-		return route.path === $location.path();
-	};
-	$scope.setActive = function (route) {
-		$location.path(route.path);
-	};
-}
+
 
