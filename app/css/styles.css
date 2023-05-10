@@ -20,6 +20,7 @@ select,
 textarea {
 	background-color: transparent;
 	outline: none;
+	font-size: 16px !important;
 }
 button {
 	cursor: pointer;
@@ -30,7 +31,7 @@ button {
 body {
 	min-height: 100vh;
 	font-weight: 400;
-	font-size: 16px;
+	font-size: 16px !important;
 	line-height: 1;
 }
 
@@ -43,4 +44,8 @@ body {
 }
 a:hover {
 	cursor: pointer;
+}
+
+.fade.in {
+	opacity: 1;
 }

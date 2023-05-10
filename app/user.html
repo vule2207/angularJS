@@ -8,14 +8,8 @@
 				<div class="card-body">
 					<div class="row mb-3">
 						<div class="col-lg-6">
-							<input
-								type="text"
-								ng-model="searchName"
-								class="w-50 form-control"
-								placeholder="Type search name..."
-								ng-change="handleSearchName()"
-								ng-model-options="{ debounce: 500 }"
-							/>
+							<input type="text" ng-model="searchName" class="w-50 form-control" placeholder="Type search name..."
+								ng-change="handleSearchName()" ng-model-options="{ debounce: 500 }" />
 						</div>
 
 						<div class="col-lg-3 offset-lg-3">
@@ -42,10 +36,7 @@
 								</tr>
 							</thead>
 							<tbody>
-								<tr
-									class=""
-									ng-repeat="user in users" 
-								>
+								<tr class="" ng-repeat="user in users">
 									<td class="align-middle">{{user.id}}</td>
 									<td class="align-middle">
 										<img style="height: 40px; width: 40px;" ng-src="{{user.avatar}}" alt="">
@@ -59,7 +50,8 @@
 										<button type="button" class="btn btn-primary" ng-click="handleEditUser(user)">
 											Edit
 										</button>
-										<button type="button" class="btn btn-danger" ng-click="deleteUser(user.id)">
+										<!-- ng-click="deleteUser(user.id)" -->
+										<button type="button" class="btn btn-danger" ng-click="showConfirmModal(user)">
 											Delete
 										</button>
 									</td>
@@ -67,8 +59,29 @@
 							</tbody>
 						</table>
 					</div>
+
+					<!-- modal confirm begin-->
+					<div ng-controller="modalController as $ctrl" class="modal-confirm">
+						<script type="text/ng-template" id="confirm-modal.html">
+							<div class="modal-header">
+									<h3 class="modal-title" id="modal-title">Delete User</h3>
+							</div>
+							<div class="modal-body fs-3" id="modal-body">
+								Are you sure?
+							</div>
+							<div class="modal-footer">
+									<button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">OK</button>
+									<button class="btn btn-warning" type="button" ng-click="$ctrl.cancel()">Cancel</button>
+							</div>
+						</script>
+
+						<div class="modal-parent">
+						</div>
+					</div>
+					<!-- modal confirm end-->
+
 				</div>
-				
+
 				<div class="d-flex justify-content-end" style="margin-right: 20px">
 					<nav aria-label="Page navigation example">
 						<ul class="pagination">
@@ -81,17 +94,15 @@
 							<li class="page-item" ng-show="pagination.total_page > 2">
 								<a class="page-link">...</a>
 							</li>
-							<li
-								class="page-item"
-								ng-class="{active: isActivePage(pagination.current_page)}"
-								ng-show="pagination.current_page != 1 && pagination.current_page != pagination.total_page"
-							>
+							<li class="page-item" ng-class="{active: isActivePage(pagination.current_page)}"
+								ng-show="pagination.current_page != 1 && pagination.current_page != pagination.total_page">
 								<a class="page-link">{{pagination.current_page}}</a>
 							</li>
 							<li class="page-item" ng-show="pagination.total_page > 2">
 								<a class="page-link">...</a>
 							</li>
-							<li class="page-item" ng-class="{active: isActivePage(pagination.total_page)}" ng-show="pagination.total_page > 1">
+							<li class="page-item" ng-class="{active: isActivePage(pagination.total_page)}"
+								ng-show="pagination.total_page > 1">
 								<a class="page-link" ng-click="handlePageChange(pagination.total_page)">{{pagination.total_page}}</a>
 							</li>
 							<li class="page-item">
@@ -111,75 +122,37 @@
 				<form name="userForm" ng-submit="handleSubmit(userForm)" novalidate enctype="multipart/form-data">
 					<div class="card-body">
 						<div class="mb-3 d-flex flex-column align-items-center">
-							<img id="previewAvatar" class="mb-3" style="height: 150px; width: 150px;" ng-src="{{formData.avatar}}" alt="">
-							<input
-								id="avatar"
-								type="file"
-								class="form-control w-50"
-								ng-file-select
-								ng-model="formData.avatar"
-							/>
+							<img id="previewAvatar" class="mb-3" style="height: 150px; width: 150px;" ng-src="{{formData.avatar}}"
+								alt="">
+							<input id="avatar" type="file" class="form-control w-50" ng-file-select ng-model="formData.avatar" />
 						</div>
 						<div class="mb-3">
 							<label for="firstName" class="form-label">Name</label>
-							<input
-								type="text"
-								ng-model="formData.name"
-								class="form-control"
-								id="firstName"
-								ng-model-options="{ debounce: 250 }"
-								required=""
-							/>
+							<input type="text" ng-model="formData.name" class="form-control" id="firstName"
+								ng-model-options="{ debounce: 250 }" required="" />
 						</div>
 						<div class="mb-3">
 							<label for="male" class="form-check-label">Male</label>
-							<input
-								type="radio"
-								name="gender"
-								ng-model="formData.gender"
-								class="form-check-input me-4"
-								id="male"
-								value="male"
-							/>
+							<input type="radio" name="gender" ng-model="formData.gender" class="form-check-input me-4" id="male"
+								value="male" />
 							<label for="female" class="form-check-label">Female</label>
-							<input
-								type="radio"
-								name="gender"
-								ng-model="formData.gender"
-								class="form-check-input"
-								id="female"
-								value="female"
-							/>
+							<input type="radio" name="gender" ng-model="formData.gender" class="form-check-input" id="female"
+								value="female" />
 						</div>
 						<div class="mb-3">
 							<label for="email" class="form-label">Email</label>
-							<input
-								type="email"
-								ng-model="formData.email"
-								class="form-control"
-								id="email"
-								ng-model-options="{ debounce: 250 }"
-							/>
+							<input type="email" ng-model="formData.email" class="form-control" id="email"
+								ng-model-options="{ debounce: 250 }" />
 						</div>
 						<div class="mb-3">
 							<label for="phone" class="form-label">Phone</label>
-							<input
-								type="number"
-								ng-model="formData.phone"
-								class="form-control"
-								id="phone"
-								ng-model-options="{ debounce: 250 }"
-							/>
+							<input type="number" ng-model="formData.phone" class="form-control" id="phone"
+								ng-model-options="{ debounce: 250 }" />
 						</div>
 						<div class="mb-3">
 							<label for="age" class="form-label">Age</label>
-							<input
-								type="number"
-								ng-model="formData.age"
-								class="form-control"
-								id="age"
-								ng-model-options="{ debounce: 250 }"
-							/>
+							<input type="number" ng-model="formData.age" class="form-control" id="age"
+								ng-model-options="{ debounce: 250 }" />
 						</div>
 					</div>
 
@@ -197,19 +170,6 @@
 		</div>
 	</div>
 
-	<div class="">
-		<div class="modal-header">
-			<h5 class="modal-title">Modal title</h5>
-			<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-		</div>
-		<div class="modal-body">
-			<p>Modal body text goes here.</p>
-		</div>
-		<div class="modal-footer">
-			<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-			<button type="button" class="btn btn-primary">Save changes</button>
-		</div>
-	</div>
+
 </div>
 <h1 ng-hide="user_info.access_token" class="text-center">Please login account!</h1>
-

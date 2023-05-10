@@ -13,14 +13,14 @@ angular
 			$location.path(route.path);
 		};
 		$scope.handleLogout = function () {
-			$rootScope.user_info = {};
-			// userServices.logout($rootScope.user_info.session_id).then((res) => {
-			// 	if (res.data.success) {
-			// 		$location.path('/login');
-			// 	} else {
-			// 		alert(res.data.message)
-			// 	}
-			// })
+			userServices.logout($rootScope.user_info.session_id).then((res) => {
+				if (res.data.success) {
+					$location.path('/login');
+					$rootScope.user_info = {};
+				} else {
+					alert(res.data.message)
+				}
+			})
 		};
 	})
 	.controller('UploadController', function ($scope, $location, userServices) {
@@ -84,16 +84,65 @@ angular
 				alert("Login failed!");
 			})
 		}
-	});
+	})
+	.controller('modalController', function ($scope, $uibModal, $rootScope, userServices) {
+		const headerAuth = {
+			'Authorization': $rootScope?.user_info?.access_token ?? ''
+		}
+		var $ctrl = this;
+		$ctrl.animationsEnabled = true;
 
+		$scope.$on('showConfirmModal', function () {
+			$ctrl.openConfirmModal($rootScope.user);
+		});
+		$ctrl.openConfirmModal = function (user, size, parentSelector) {
+			var parentElem = parentSelector ?
+				angular.element($document[0].querySelector('.modal-confirm ' + parentSelector)) : undefined;
 
-function uploadController($scope, fileReader) {
-	$scope.imageSrc = "";
+			var modalInstance = $uibModal.open({
+				animation: $ctrl.animationsEnabled,
+				ariaLabelledBy: 'modal-title',
+				ariaDescribedBy: 'modal-body',
+				templateUrl: 'confirm-modal.html',
+				controller: 'ConfirmModalCtrl',
+				controllerAs: '$ctrl',
+				size: size,
+				appendTo: parentElem,
+				resolve: {
+					user: function () {
+						return user;
+					}
+				}
+			});
 
-	$scope.$on("fileProgress", function (e, progress) {
-		$scope.progress = progress.loaded / progress.total;
-	});
-}
+			modalInstance.result.then(function () {
+				$ctrl.deleteItem(user);
+			});
+		};
+
+		$ctrl.deleteItem = function (user) {
+			console.log("delete user:", user)
+			userServices
+				.deleteUser(user.id, headerAuth)
+				.then((res) => {
+					alert("Delete User Successfull!")
+					$scope.getUserList($scope.params, headerAuth);
+				})
+				.catch((err) => alert("Delete User Failed!"));
+		};
+	})
+	.controller('ConfirmModalCtrl', function ($uibModalInstance, user) {
+		var $ctrl = this;
+		$ctrl.user = user;
+
+		$ctrl.ok = function () {
+			$uibModalInstance.close($ctrl.user);
+		};
+
+		$ctrl.cancel = function () {
+			$uibModalInstance.dismiss('cancel');
+		};
+	})
 
 function userController($scope, userServices, $rootScope) {
 	const headerAuth = {
@@ -257,7 +306,13 @@ function userController($scope, userServices, $rootScope) {
 		$scope.isAdd = true;
 	};
 
+	$scope.showConfirmModal = function (user) {
+		$rootScope.user = user;
+		$rootScope.$broadcast('showConfirmModal');
+	}
+
 	$scope.getUserList($scope.params, headerAuth);
+
 }
 
 

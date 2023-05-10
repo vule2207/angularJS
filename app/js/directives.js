@@ -19,21 +19,25 @@ angular.module("userManagement.directives", []).directive("ngFileSelect", functi
 			});
 		}
 	};
-}).directive('confirmAction', function () {
+}).directive('confirmModal', function () {
 	return {
-		restrict: 'A',
+		restrict: 'E',
+		templateUrl: 'confirm-modal.html',
 		scope: {
-			confirmFunction: '&',
-			confirmMessage: '@'
+			item: '=',
+			onDelete: '&'
 		},
-		link: function (scope, element, attrs) {
-			element.on('click', function () {
-				if (confirm(scope.confirmMessage || 'Are you sure?')) {
-					scope.confirmFunction();
-					scope.$apply();
-				}
-			});
+		controller: function ($scope, $uibModalInstance) {
+			$scope.ok = function () {
+				$uibModalInstance.close();
+				$scope.onDelete({ item: $scope.item });
+			};
+
+			$scope.cancel = function () {
+				$uibModalInstance.dismiss('cancel');
+			};
 		}
 	};
 });
+
 

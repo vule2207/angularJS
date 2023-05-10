@@ -1,51 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>AngularJS</title>
-		<link rel="stylesheet" href="./css/styles.css" />
-		<link
-			rel="stylesheet"
-			href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-			integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
-			crossorigin="anonymous"
-			referrerpolicy="no-referrer"
-		/>
-		<link
-			href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css"
-			rel="stylesheet"
-			integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ"
-			crossorigin="anonymous"
-		/>
-	</head>
-	<body>
-		<div class="angularjs-app" ng-app="userManagement">
-			<nav class="navbar fixed-top bg-dark-subtle">
-				<div class="container-fluid" ng-controller="tabController">
-					<div class="fs-4 navbar-brand text-center py-2" style="width: 30%;">Learning AngularJS</div>
-					<div class="d-flex flex-grow-1 align-items-center justify-content-between me-5">
-						<div class="d-flex">
-							<div style="width: 200px;" ng-repeat="route in routes" ng-class="{active: isActive(route)}">
-								<a style="text-decoration: none; color: #000;" class="nav-item fs-5" href="#!{{route.path}}" ng-click="setActive(route)">{{route.label}}</a>
-							</div>
-						</div>
-						<div class="nav-item fs-5" ng-hide="user_info.access_token">
-							<a href="#!login">Login</a> / 
-							<a href="#!register">Register</a>
-						</div>
-						<div class="nav-item fs-5" ng-show="user_info.access_token">
-							<span>{{user_info.name}}</span> / 
-							<a href="#!login" ng-click="handleLogout()">Logout</a>
+
+<head>
+	<meta charset="UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>AngularJS</title>
+	<link rel="stylesheet" href="./css/styles.css" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+		integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+		crossorigin="anonymous" referrerpolicy="no-referrer" />
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
+		integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous" />
+	<link href="//netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+	<div class="angularjs-app" ng-app="userManagement">
+		<nav class="navbar fixed-top bg-dark-subtle">
+			<div class="container-fluid" ng-controller="tabController">
+				<h1 class="text-center" style="width: 30%;">Learning AngularJS</h1>
+				<div class="d-flex flex-grow-1 align-items-center justify-content-between me-5">
+					<div class="d-flex">
+						<div style="width: 200px;" ng-repeat="route in routes" ng-class="{active: isActive(route)}">
+							<a style="text-decoration: none; color: #000;" class="nav-item fs-2" href="#!{{route.path}}"
+								ng-click="setActive(route)">{{route.label}}</a>
 						</div>
 					</div>
+					<div class="nav-item fs-2" ng-hide="user_info.access_token">
+						<a href="#!login">Login</a> /
+						<a href="#!register">Register</a>
+					</div>
+					<div class="nav-item fs-2" ng-show="user_info.access_token">
+						<span>{{user_info.name}}</span> /
+						<a href="#!login" ng-click="handleLogout()">Logout</a>
+					</div>
 				</div>
-			</nav>
+			</div>
+		</nav>
 
-			<div style="margin-top: 100px;" ng-view></div>
-			
-			<!-- <div ng-controller="tabController" style="margin-top: 100px;">
+		<div style="margin-top: 100px;" ng-view></div>
+
+		<!-- <div ng-controller="tabController" style="margin-top: 100px;">
 				<ul class="nav nav-tabs justify-content-center">
 					<li class="nav-item" ng-repeat="route in routes" ng-class="{active: isActive(route)}">
 						<a class="nav-link" href="#!{{route.path}}" ng-click="setActive(route)">{{route.label}}</a>
@@ -53,21 +49,23 @@
 				</ul>
 				<div ng-view></div>
 			</div> -->
-		</div>
+	</div>
 
-		<!-- script -->
-		<script
-			src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
-			integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
-			crossorigin="anonymous"
-		></script>
-		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
-		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-route.js"></script>
-		<script src="./lib/angular-file-upload.js"></script>
-		<script src="./js/app.js"></script>
-		<script src="./js/services.js"></script>
-		<script src="./js/filters.js"></script>
-		<script src="./js/controllers.js"></script>
-		<script src="./js/directives.js"></script>
-	</body>
+	<!-- script -->
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
+		integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
+		crossorigin="anonymous"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-route.js"></script>
+	<script src="./lib/angular-file-upload.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-animate.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-sanitize.js"></script>
+	<script src="./lib/ui-bootstrap-tpls-2.5.0.min.js"></script>
+	<script src="./js/app.js"></script>
+	<script src="./js/services.js"></script>
+	<script src="./js/filters.js"></script>
+	<script src="./js/controllers.js"></script>
+	<script src="./js/directives.js"></script>
+</body>
+
 </html>

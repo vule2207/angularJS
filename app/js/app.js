@@ -5,6 +5,7 @@ angular
 		"userManagement.directives",
 		"userManagement.filters",
 		"ngRoute",
+		'ui.bootstrap'
 	])
 	.config(function ($routeProvider) {
 		$routeProvider
